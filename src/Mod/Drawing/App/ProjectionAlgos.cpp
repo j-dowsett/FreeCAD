@@ -163,6 +163,7 @@ std::string ProjectionAlgos::getSVG(ExtractionType type, double scale, double to
                 << "   stroke-linejoin=\"miter\"" << endl
                 << "   stroke-dasharray=\"0.2,0.1\"" << endl
                 << "   fill=\"none\"" << endl
+                << "   transform=\"scale(1,-1)\"" << endl
                 << "  >" << endl
                 << output.exportEdges(H)
                 << "</g>" << endl;
@@ -178,6 +179,7 @@ std::string ProjectionAlgos::getSVG(ExtractionType type, double scale, double to
                 << "   stroke-linejoin=\"miter\"" << endl
                 << "   stroke-dasharray=\"0.02,0.1\"" << endl
                 << "   fill=\"none\"" << endl
+                << "   transform=\"scale(1,-1)\"" << endl
                 << "  >" << endl
                 << output.exportEdges(HO)
                 << "</g>" << endl;
@@ -192,6 +194,7 @@ std::string ProjectionAlgos::getSVG(ExtractionType type, double scale, double to
                 << "   stroke-linecap=\"butt\"" << endl
                 << "   stroke-linejoin=\"miter\"" << endl
                 << "   fill=\"none\"" << endl
+                << "   transform=\"scale(1,-1)\"" << endl
                 << "  >" << endl
                 << output.exportEdges(VO)
                 << "</g>" << endl;
@@ -206,6 +209,7 @@ std::string ProjectionAlgos::getSVG(ExtractionType type, double scale, double to
                 << "   stroke-linecap=\"butt\"" << endl
                 << "   stroke-linejoin=\"miter\"" << endl
                 << "   fill=\"none\"" << endl
+                << "   transform=\"scale(1,-1)\"" << endl
                 << "  >" << endl
                 << output.exportEdges(V)
                 << "</g>" << endl;
@@ -220,6 +224,7 @@ std::string ProjectionAlgos::getSVG(ExtractionType type, double scale, double to
                 << "   stroke-linecap=\"butt\"" << endl
                 << "   stroke-linejoin=\"miter\"" << endl
                 << "   fill=\"none\"" << endl
+                << "   transform=\"scale(1,-1)\"" << endl
                 << "  >" << endl
                 << output.exportEdges(V1)
                 << "</g>" << endl;
@@ -235,6 +240,7 @@ std::string ProjectionAlgos::getSVG(ExtractionType type, double scale, double to
                 << "   stroke-linejoin=\"miter\"" << endl
                 << "   stroke-dasharray=\"0.09,0.05\"" << endl
                 << "   fill=\"none\"" << endl
+                << "   transform=\"scale(1,-1)\"" << endl
                 << "  >" << endl
                 << output.exportEdges(H1)
                 << "</g>" << endl;
