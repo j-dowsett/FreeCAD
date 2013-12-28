@@ -45,6 +45,10 @@ using namespace DrawingGui;
 using namespace std;
 
 
+#ifndef PI
+    #define PI    3.14159265358979323846 /* pi */
+#endif
+
 
 
 void pagesize(string & page_template, int & x, int & y)
