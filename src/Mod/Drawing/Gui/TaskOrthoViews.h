@@ -178,7 +178,7 @@ private:
 
     float   data[5];                    // pointers to scale, x_pos, y_pos, horiz, vert
     int     axo_r_x, axo_r_y;           // relative position of axo view currently being edited
-    int     num_axo;                    // how many axo views do we have
+    //int     num_axo;                    // how many axo views do we have
 };
 
 

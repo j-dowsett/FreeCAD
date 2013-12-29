@@ -906,7 +906,7 @@ void TaskOrthoViews::ShowContextMenu(const QPoint& pos)
 
             if (text == str_1)                          // make axo
             {
-                num_axo += 1;
+                //num_axo += 1;
                 orthos->set_Axo(dx, -dy);
                 axo_r_x = dx;
                 axo_r_y = dy;
@@ -925,7 +925,7 @@ void TaskOrthoViews::ShowContextMenu(const QPoint& pos)
             else if (text == str_3)                     // make ortho
             {
                 orthos->set_Ortho(dx, -dy);
-                num_axo -= 1;
+                //num_axo -= 1;
 
                 if (dx == axo_r_x && dy == axo_r_y)
                 {
@@ -961,7 +961,7 @@ void TaskOrthoViews::cb_toggled(bool toggle)
         orthos->add_view(dx, -dy);
         if (dx * dy != 0)                      // adding an axo view
         {
-            num_axo += 1;
+            //num_axo += 1;
             axo_r_x = dx;
             axo_r_y = dy;
             ui->tabWidget->setTabEnabled(1, true);
@@ -973,7 +973,7 @@ void TaskOrthoViews::cb_toggled(bool toggle)
     {
         if (!orthos->is_Ortho(dx, -dy))         // is it an axo one?
         {
-            num_axo -= 1;
+            //num_axo -= 1;
             if (dx == axo_r_x && dy == axo_r_y) // is it the one currently being edited?
             {
                 axo_r_x = 0;
