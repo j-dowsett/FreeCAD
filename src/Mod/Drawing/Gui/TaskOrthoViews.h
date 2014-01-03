@@ -31,6 +31,9 @@
 #include <gp_Ax2.hxx>
 #include <vector>
 
+#include <Mod/Drawing/App/FeatureViewPart.h>
+
+
 
 class Ui_TaskOrthoViews;
 using namespace std;
@@ -38,45 +41,45 @@ using namespace std;
 namespace DrawingGui {
 
 
-class orthoView
+class orthoview
 {
 public:
-    orthoView(string name, string label, const char * targetpage, const char * sourcepart, Base::BoundBox3d * partbox);
-    ~orthoView();
+    orthoview(App::Document * parent, App::DocumentObject * part, App::DocumentObject * page, Base::BoundBox3d * partbox);
+    ~orthoview();
 
-    void set_projection(gp_Ax2 cs);
-    void setPos(float = 0, float = 0);
-    void setScale(float);
-    void deleteme();
-    void hidden(bool);
-    void smooth(bool);
+    void    set_data(int r_x, int r_y);
+    void    set_projection(gp_Ax2 cs);
+    void    get_projection(gp_Dir & up, gp_Dir & right);
+    void    setPos(float = 0, float = 0);
+    void    setScale(float newscale);
+    float   getScale();
+    void    deleteme();
+    void    hidden(bool);
+    void    smooth(bool);
 
 private:
-    void calcCentre();
+    void    calcCentre();
+
+public:     // these aren't used by orthoView, but just informational, hence public
+    bool    ortho;          // orthonometric?  or axonometric
+    bool    auto_scale;     // scale for axonometric has not been manually changed?
+    int     rel_x, rel_y;   // relative position of this view
+    bool    away, tri;      // binary parameters for axonometric view
+    int     axo;            // 0 / 1 / 2 = iso / di / tri metric
 
 private:
+    App::Document *             parent_doc;
+    Drawing::FeatureViewPart *  this_view;
+
     string  myname;
     float   x, y;                   // 2D projection coords of bbox centre relative to origin
     float   cx, cy, cz;             // coords of bbox centre in 3D space
-    float   pageX, pageY;           // required coords of projection centre on page
+    float   pageX, pageY;           // required coords of centre of bbox projection on page
     float   scale;                  // scale of projection
-    gp_Dir  X_dir, Y_dir, Z_dir;
+    gp_Dir  X_dir, Y_dir, Z_dir;    // directions of projection, X_dir makes x on page, Y_dir is y on page, Z_dir is out of page
 };
 
 
-
-
-struct view_struct
-{
-    bool        ortho;
-    int         rel_x, rel_y;
-    orthoView * view;
-    bool        auto_scale;         // has scale for axo view been manually changed?
-    gp_Dir      up, right;          // directions used to create axo
-    bool        away, tri;          //  "   "
-    int         axo;                // 0 / 1 / 2  =  iso / di / tri metric
-    float       axo_scale;          // scale for axo view
-};
 
 
 class OrthoViews
@@ -113,9 +116,11 @@ private:
     int     index(int rel_x, int rel_y);
 
 private:
-    vector<view_struct>     views;
+    vector<orthoview *>     views;
     Base::BoundBox3d        bbox;
     App::Document *         parent_doc;
+    App::DocumentObject *   part;
+    App::DocumentObject *   page;
 
     string  page_name, part_name;
     int     size_x, size_y;                 // page working space (ie size inside of margins)
@@ -146,23 +151,24 @@ public:
     TaskOrthoViews(QWidget *parent = 0);
     ~TaskOrthoViews();
     bool user_input();
-    void clean_up(bool);
+    void clean_up();
 
 protected Q_SLOTS:
     void ShowContextMenu(const QPoint & pos);
-    void setPrimary(int);
-    void cb_toggled(bool);
-    void projectionChanged(int);
-    void hidden(int);
-    void smooth(int);
-    void toggle_auto(int);
-    void data_entered();
+    void setPrimary(int dir);
+    void cb_toggled(bool toggle);
+    void projectionChanged(int index);
+    void hidden(int i);
+    void smooth(int i);
+    void toggle_auto(int i);
+    void data_entered(const QString & text);
     void change_axo(int p = 3);
     void axo_button();
-    void axo_scale();
+    void axo_scale(const QString & text);
+    void text_return();
 
 protected:
-    void changeEvent(QEvent *);
+    void changeEvent(QEvent * e);
 
 private:
     void setup_axo_tab();
@@ -176,9 +182,9 @@ private:
     QCheckBox *     c_boxes[5][5];      // matrix of pointers to gui checkboxes
     QLineEdit *     inputs[5];          // pointers to manual position/scale boxes
 
-    float   data[5];                    // pointers to scale, x_pos, y_pos, horiz, vert
+    float   data[5];                    // scale, x_pos, y_pos, horiz, vert
     int     axo_r_x, axo_r_y;           // relative position of axo view currently being edited
-    //int     num_axo;                    // how many axo views do we have
+    bool    txt_return;                 // flag to show if return was pressed while editing a text box;
 };
 
 
