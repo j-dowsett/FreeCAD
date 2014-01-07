@@ -43,12 +43,17 @@ using namespace std;
 
 
 
-void pagesize(string & page_template, int dims[4])
+void pagesize(string & page_template, int dims[4], int block[4])
 {
-    dims[0] = 10;
+    dims[0] = 10;               // default to A4_Landscape with 10mm margins
     dims[1] = 10;
     dims[2] = 287;
     dims[3] = 200;
+
+    block[0] = block[1] = 0;    // default to no title block
+    block[2] = block[3] = 0;
+
+    int t0, t1, t2, t3 = 0;
 
     //code below copied from FeaturePage.cpp
     Base::FileInfo fi(page_template);
@@ -71,10 +76,16 @@ void pagesize(string & page_template, int dims[4])
 
             if (line.find("<!-- Working space") != string::npos)
             {
-                sscanf(line.c_str(), "%*s %*s %*s %d %d %d %d", & dims[0], & dims[1], & dims[2], & dims[3]);        //eg "    <!-- Working space 10 10 410 287 -->"
+                sscanf(line.c_str(), "%*s %*s %*s %d %d %d %d", &dims[0], &dims[1], &dims[2], &dims[3]);        //eg "    <!-- Working space 10 10 410 287 -->"
+                getline (file,line);
+
+                if (line.find("<!-- Title block") != string::npos)
+                    sscanf(line.c_str(), "%*s %*s %*s %d %d %d %d", &t0, &t1, &t2, &t3);    //eg "    <!-- Working space 10 10 410 287 -->"
+
                 break;
             }
-            else if (line.find("metadata") != string::npos)      //give up if we meet a metadata tag
+
+            if (line.find("metadata") != string::npos)      //give up if we meet a metadata tag
                 break;
         }
     }
@@ -82,8 +93,26 @@ void pagesize(string & page_template, int dims[4])
     { }
 
     file.close();
-}
 
+    if (t3 != 0)
+    {
+        block[2] = t2 - t0;             // block width
+        block[3] = t3 - t1;             // block height
+
+        if (t0 <= dims[0])              // title block on left
+            block[0] = -1;
+        else if (t2 >= dims[2])         // title block on right
+            block[0] = 1;
+
+        if (t1 <= dims[1])              // title block at top
+            block[1] = 1;
+        else if (t3 >= dims[3])         // title block at bottom
+            block[1] = -1;
+    }
+
+    dims[2] -= dims[0];         // width
+    dims[3] -= dims[1];         // height
+}
 
 
 
@@ -97,7 +126,7 @@ void pagesize(string & page_template, int dims[4])
 orthoview::orthoview(App::Document * parent, App::DocumentObject * part, App::DocumentObject * page, Base::BoundBox3d * partbox)
 {
     parent_doc = parent;
-    myname = parent_doc->getUniqueObjectName("Ortho").c_str();
+    myname = parent_doc->getUniqueObjectName("Ortho");
 
     cx = partbox->CalcCenter().x;
     cy = partbox->CalcCenter().y;
@@ -128,11 +157,10 @@ void orthoview::set_data(int r_x, int r_y)
     rel_x = r_x;
     rel_y = r_y;
 
-    char temp[15];
-    sprintf(temp, "Ortho_%i_%i", rel_x, rel_y);         // label name for view, based on relative position
-    string label = string(temp);
+    char label[15];
+    sprintf(label, "Ortho_%i_%i", rel_x, rel_y);         // label name for view, based on relative position
 
-    this_view->Label.setValue(label.c_str());
+    this_view->Label.setValue(label);
     ortho = ((rel_x * rel_y) == 0);
 }
 
@@ -246,13 +274,7 @@ OrthoViews::OrthoViews(const char * pagename, const char * partname)
     bbox.Add(static_cast<Part::Feature*>(part)->Shape.getBoundingBox());
 
     page = parent_doc->getObject(pagename);
-    string template_name = static_cast<Drawing::FeaturePage*>(page)->Template.getValue();
-
-    int dims[4];
-    pagesize(template_name, dims);
-    margin = dims[0];
-    size_x = dims[2] - margin;
-    size_y = dims[3] - margin;
+    load_page();
 
     min_space = 15;             // should be preferenced
 
@@ -272,6 +294,106 @@ OrthoViews::~OrthoViews()
         delete views[i];
 
     page->recompute();
+}
+
+
+void OrthoViews::load_page()
+{
+    string template_name = static_cast<Drawing::FeaturePage*>(page)->Template.getValue();
+    pagesize(template_name, large, block);
+    page_dims = large;
+
+    // process page dims for title block data
+    if (block[0] != 0)
+    {
+        title = true;
+
+        // max vertical space avoiding title block
+        small_v[1] = large[1];                  // y margin same as large page
+        small_v[3] = large[3];                  // y size same as large page
+        small_v[2] = large[2] - block[2];       // x width same as large width - block width
+        if (block[0] == -1)
+        {
+            small_v[0] = large[0] + block[2];   // x margin same as large + block width
+            horiz = &min_r_x;
+        }
+        else
+        {
+            small_v[0] = large[0];              // x margin same as large
+            horiz = &max_r_x;
+        }
+
+        // max horizontal space avoiding title block
+        small_h[0] = large[0];
+        small_h[2] = large[2];
+        small_h[3] = large[3] - block[3];
+        if (block[1] == 1)
+        {
+            small_h[1] = large[1] + block[3];
+            vert = &max_r_y;
+        }
+        else
+        {
+            small_h[1] = large[1];
+            vert = &min_r_y;
+        }
+    }
+    else
+        title = false;
+}
+
+
+void OrthoViews::choose_page()                              // chooses which bit of page space to use depending upon layout & titleblock
+{
+    int   h = abs(*horiz);                                                                  // how many views in direction of title block  (horiz points to min_r_x or max_r_x)
+    int   v = abs(*vert);
+    float layout_corner_width = (1 + floor(h / 2.0)) * width + ceil(h / 2.0) * depth;       // from (0, 0) view inclusively, how wide and tall is the layout in the direction of the title block
+    float layout_corner_height = (1 + floor(v / 2.0)) * height + ceil(v / 2.0) * depth;
+    float rel_space_x = layout_corner_width / layout_width - 1.0 * block[2] / large[2];     // relative to respective sizes, how much space between (0, 0) and title block,
+    float rel_space_y = layout_corner_height / layout_height - 1.0 * block[3] / large[3];   //                      can be -ve if block extends into / beyond (0, 0) view
+    float view_x, view_y, v_x_r, v_y_r;
+    bool  interferes = false;
+    float a, b;
+
+    for (int i = min_r_x; i <= max_r_x; i++)
+        for (int j = min_r_y; j <= max_r_y; j++)
+            if (index(i, j) != -1)                                    // is there a view in this position?
+            {
+                a = i * block[0] * 0.5;                                 // reflect i and j so as +ve is in direction of title block ##
+                b = j * block[1] * 0.5;
+                view_x = ceil(a + 0.5) * width + ceil(a) * depth;       // extreme coords of view in direction of block, measured from far corner of (0, 0) view,
+                view_y = ceil(b + 0.5) * height + ceil(b) * depth;      //                      can be -ve if view is on opposite side of (0, 0) from title block
+                v_x_r = view_x / layout_width;                          // make relative
+                v_y_r = view_y / layout_height;
+                if (v_x_r > rel_space_x && v_y_r > rel_space_y)         // ## so that can use > in this condition regardless of position of block
+                    interferes = true;
+            }
+
+    if (!interferes)
+        page_dims = large;
+    else
+    {
+        if (min(small_h[2] / layout_width, small_h[3] / layout_height) > min(small_v[2] / layout_width, small_v[3] / layout_height))
+            page_dims = small_h;
+        else
+            page_dims = small_v;
+    }
+}
+
+
+void OrthoViews::calc_layout_size()                         // calculate the real world size of given view layout, assuming no space
+{
+    // note that views in relative positions x = -4, -2, 0 , 2 etc etc
+    // have width = orientated part width
+    // while those in relative positions x = -3, -1, 1 etc
+    // have width = orientated part depth
+
+    // similarly in y positions, height = part height or depth
+
+    layout_width = (1 + floor(max_r_x / 2.0) + floor(-min_r_x / 2.0)) * width;
+    layout_width += (ceil(max_r_x / 2.0) + ceil(-min_r_x / 2.0)) * depth;
+    layout_height = (1 + floor(max_r_y / 2.0) + floor(-min_r_y / 2.0)) * height;
+    layout_height += (ceil(max_r_y / 2.0) + ceil(-min_r_y / 2.0)) * depth;
 }
 
 
@@ -316,22 +438,6 @@ void OrthoViews::set_primary(gp_Dir facing, gp_Dir right)   // set the orientati
         set_all_orientations();                 // reorient all other views appropriately
         process_views();
     }
-}
-
-
-void OrthoViews::calc_layout_size()                         // calculate the real world size of given view layout, assuming no space
-{
-    // note that views in relative positions x = -4, -2, 0 , 2 etc etc
-    // have width = orientated part width
-    // while those in relative positions x = -3, -1, 1 etc
-    // have width = orientated part depth
-
-    // similarly in y positions, height = part height or depth
-
-    layout_width = (1 + floor(max_r_x / 2.0) + floor(-min_r_x / 2.0)) * width;
-    layout_width += (ceil(max_r_x / 2.0) + ceil(-min_r_x / 2.0)) * depth;
-    layout_height = (1 + floor(max_r_y / 2.0) + floor(-min_r_y / 2.0)) * height;
-    layout_height += (ceil(max_r_y / 2.0) + ceil(-min_r_y / 2.0)) * depth;
 }
 
 
@@ -398,6 +504,7 @@ void OrthoViews::set_views()                                // process all views
 
         if (views[i]->auto_scale)
             views[i]->setScale(scale);
+
         views[i]->setPos(x, y);
     }
 }
@@ -408,21 +515,21 @@ void OrthoViews::calc_offsets()                             // calcs SVG coords 
     // space_x is the emptry clear white space between views
     // gap_x is the centre - centre distance between views
 
-    float space_x = (size_x - scale * layout_width) / num_gaps_x;
-    float space_y = (size_y - scale * layout_height) / num_gaps_y;
+    float space_x = (page_dims[2] - scale * layout_width) / num_gaps_x;
+    float space_y = (page_dims[3] - scale * layout_height) / num_gaps_y;
 
     gap_x = space_x + scale * (width + depth) * 0.5;
     gap_y = space_y + scale * (height + depth) * 0.5;
 
     if (min_r_x % 2 == 0)
-        offset_x = margin + space_x + 0.5 * scale * width;
+        offset_x = page_dims[0] + space_x + 0.5 * scale * width;
     else
-        offset_x = margin + space_x + 0.5 * scale * depth;
+        offset_x = page_dims[0] + space_x + 0.5 * scale * depth;
 
     if (max_r_y % 2 == 0)
-        offset_y = margin + space_y + 0.5 * scale * height;
+        offset_y = page_dims[1] + space_y + 0.5 * scale * height;
     else
-        offset_y = margin + space_y + 0.5 * scale * depth;
+        offset_y = page_dims[1] + space_y + 0.5 * scale * depth;
 }
 
 
@@ -430,8 +537,8 @@ void OrthoViews::calc_scale()                               // compute scale req
 {
     float scale_x, scale_y, working_scale;
 
-    scale_x = (size_x - num_gaps_x * min_space) / layout_width;
-    scale_y = (size_y - num_gaps_y * min_space) / layout_height;
+    scale_x = (page_dims[2] - num_gaps_x * min_space) / layout_width;
+    scale_y = (page_dims[3] - num_gaps_y * min_space) / layout_height;
 
     working_scale = min(scale_x, scale_y);
 
@@ -527,6 +634,10 @@ void OrthoViews::process_views()                            // update scale and 
     if (autodims)
     {
         calc_layout_size();
+
+        if (title)
+            choose_page();
+
         calc_scale();
         calc_offsets();
     }
