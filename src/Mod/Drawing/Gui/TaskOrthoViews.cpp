@@ -41,6 +41,12 @@ using namespace std;
     #define PI    3.14159265358979323846 /* pi */
 #endif
 
+#if 0 // needed for Qt's lupdate utility
+    qApp->translate("QObject", "Make axonometric...");
+    qApp->translate("QObject", "Edit axonometric settings...");
+    qApp->translate("QObject", "Make orthographic");
+#endif
+
 
 
 void pagesize(string & page_template, int dims[4], int block[4])
@@ -947,9 +953,9 @@ void TaskOrthoViews::ShowContextMenu(const QPoint& pos)
 
     if (c_boxes[dx + 2][dy + 2]->isChecked())
     {
-        QString str_1 = QString::fromUtf8("Make axonometric...");
-        QString str_2 = QString::fromUtf8("Edit axonometric settings...");
-        QString str_3 = QString::fromUtf8("Make orthographic");
+        QString str_1 = QObject::tr("Make axonometric...");
+        QString str_2 = QObject::tr("Edit axonometric settings...");
+        QString str_3 = QObject::tr("Make orthographic");
 
         QPoint globalPos = c_boxes[dx + 2][dy + 2]->mapToGlobal(pos);
         QMenu myMenu;
