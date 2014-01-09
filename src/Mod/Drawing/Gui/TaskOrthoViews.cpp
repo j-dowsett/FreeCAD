@@ -253,12 +253,6 @@ void orthoview::set_projection(gp_Ax2 cs)
 }
 
 
-void orthoview::get_projection(gp_Dir & up, gp_Dir & right)
-{
-    up = X_dir;
-    right = Y_dir;
-}
-
 
 
 
@@ -349,6 +343,22 @@ void OrthoViews::load_page()
 }
 
 
+void OrthoViews::calc_layout_size()                         // calculate the real world size of given view layout, assuming no space
+{
+    // note that views in relative positions x = -4, -2, 0 , 2 etc etc
+    // have width = orientated part width
+    // while those in relative positions x = -3, -1, 1 etc
+    // have width = orientated part depth
+
+    // similarly in y positions, height = part height or depth
+
+    layout_width = (1 + floor(max_r_x / 2.0) + floor(-min_r_x / 2.0)) * width;
+    layout_width += (ceil(max_r_x / 2.0) + ceil(-min_r_x / 2.0)) * depth;
+    layout_height = (1 + floor(max_r_y / 2.0) + floor(-min_r_y / 2.0)) * height;
+    layout_height += (ceil(max_r_y / 2.0) + ceil(-min_r_y / 2.0)) * depth;
+}
+
+
 void OrthoViews::choose_page()                              // chooses which bit of page space to use depending upon layout & titleblock
 {
     int   h = abs(*horiz);                                                                  // how many views in direction of title block  (horiz points to min_r_x or max_r_x)
@@ -387,19 +397,88 @@ void OrthoViews::choose_page()                              // chooses which bit
 }
 
 
-void OrthoViews::calc_layout_size()                         // calculate the real world size of given view layout, assuming no space
+void OrthoViews::calc_scale()                               // compute scale required to meet minimum space requirements
 {
-    // note that views in relative positions x = -4, -2, 0 , 2 etc etc
-    // have width = orientated part width
-    // while those in relative positions x = -3, -1, 1 etc
-    // have width = orientated part depth
+    float scale_x, scale_y, working_scale;
 
-    // similarly in y positions, height = part height or depth
+    scale_x = (page_dims[2] - num_gaps_x * min_space) / layout_width;
+    scale_y = (page_dims[3] - num_gaps_y * min_space) / layout_height;
 
-    layout_width = (1 + floor(max_r_x / 2.0) + floor(-min_r_x / 2.0)) * width;
-    layout_width += (ceil(max_r_x / 2.0) + ceil(-min_r_x / 2.0)) * depth;
-    layout_height = (1 + floor(max_r_y / 2.0) + floor(-min_r_y / 2.0)) * height;
-    layout_height += (ceil(max_r_y / 2.0) + ceil(-min_r_y / 2.0)) * depth;
+    working_scale = min(scale_x, scale_y);
+
+    //which gives the largest scale for which the min_space requirements can be met, but we want a 'sensible' scale, rather than 0.28457239...
+    //eg if working_scale = 0.115, then we want to use 0.1, similarly 7.65 -> 5, and 76.5 -> 50
+
+    float exponent = floor(log10(working_scale));                       //if working_scale = a * 10^b, what is b?
+    working_scale *= pow(10, -exponent);                                //now find what 'a' is.
+
+    float valid_scales[2][8] = {{1, 1.25, 2, 2.5, 3.75, 5, 7.5, 10},    //equate to 1:10, 1:8, 1:5, 1:4, 3:8, 1:2, 3:4, 1:1
+                                {1, 1.5, 2, 3, 4, 5, 8, 10}};           //equate to 1:1, 3:2, 2:1, 3:1, 4:1, 5:1, 8:1, 10:1
+
+    int i = 7;
+    while (valid_scales[(exponent>=0)][i] > working_scale)              //choose closest value smaller than 'a' from list.
+        i -= 1;                                                         //choosing top list if exponent -ve, bottom list for +ve exponent
+
+    scale = valid_scales[(exponent>=0)][i] * pow(10, exponent);         //now have the appropriate scale, reapply the *10^b
+}
+
+
+void OrthoViews::calc_offsets()                             // calcs SVG coords for centre of upper left view
+{
+    // space_x is the emptry clear white space between views
+    // gap_x is the centre - centre distance between views
+
+    float space_x = (page_dims[2] - scale * layout_width) / num_gaps_x;
+    float space_y = (page_dims[3] - scale * layout_height) / num_gaps_y;
+
+    gap_x = space_x + scale * (width + depth) * 0.5;
+    gap_y = space_y + scale * (height + depth) * 0.5;
+
+    if (min_r_x % 2 == 0)
+        offset_x = page_dims[0] + space_x + 0.5 * scale * width;
+    else
+        offset_x = page_dims[0] + space_x + 0.5 * scale * depth;
+
+    if (max_r_y % 2 == 0)
+        offset_y = page_dims[1] + space_y + 0.5 * scale * height;
+    else
+        offset_y = page_dims[1] + space_y + 0.5 * scale * depth;
+}
+
+
+void OrthoViews::set_views()                                // process all views - scale & positions
+{
+    float x;
+    float y;
+
+    for (int i = 0; i < views.size(); i++)
+    {
+        x = offset_x + (views[i]->rel_x - min_r_x) * gap_x;
+        y = offset_y + (max_r_y - views[i]->rel_y) * gap_y;
+
+        if (views[i]->auto_scale)
+            views[i]->setScale(scale);
+
+        views[i]->setPos(x, y);
+    }
+}
+
+
+void OrthoViews::process_views()                            // update scale and positions of views
+{
+    if (autodims)
+    {
+        calc_layout_size();
+
+        if (title)
+            choose_page();
+
+        calc_scale();
+        calc_offsets();
+    }
+
+    set_views();
+    parent_doc->recompute();
 }
 
 
@@ -447,30 +526,6 @@ void OrthoViews::set_primary(gp_Dir facing, gp_Dir right)   // set the orientati
 }
 
 
-void OrthoViews::set_projection(int proj)                   // 1 = 1st angle, 3 = 3rd angle
-{
-    if (proj == 3)
-        rotate_coeff = 1;
-    else if (proj == 1)
-        rotate_coeff = -1;
-
-    set_all_orientations();
-    process_views();
-}
-
-
-void OrthoViews::set_all_orientations()                     // set orientations of all views (ie projection or primary changed)
-{
-    for (int i = 1; i < views.size(); i++)          // start from 1 - the 0 is the primary view
-    {
-        if (views[i]->ortho)
-            set_orientation(i);
-        else
-            set_Axo(views[i]->rel_x, views[i]->rel_y);
-    }
-}
-
-
 void OrthoViews::set_orientation(int index)                 // set orientation of single view
 {
     double  rotation;
@@ -498,70 +553,27 @@ void OrthoViews::set_orientation(int index)                 // set orientation o
 }
 
 
-void OrthoViews::set_views()                                // process all views - scale & positions
+void OrthoViews::set_all_orientations()                     // set orientations of all views (ie projection or primary changed)
 {
-    float x;
-    float y;
-
-    for (int i = 0; i < views.size(); i++)
+    for (int i = 1; i < views.size(); i++)          // start from 1 - the 0 is the primary view
     {
-        x = offset_x + (views[i]->rel_x - min_r_x) * gap_x;
-        y = offset_y + (max_r_y - views[i]->rel_y) * gap_y;
-
-        if (views[i]->auto_scale)
-            views[i]->setScale(scale);
-
-        views[i]->setPos(x, y);
+        if (views[i]->ortho)
+            set_orientation(i);
+        else
+            set_Axo(views[i]->rel_x, views[i]->rel_y);
     }
 }
 
 
-void OrthoViews::calc_offsets()                             // calcs SVG coords for centre of upper left view
+void OrthoViews::set_projection(int proj)                   // 1 = 1st angle, 3 = 3rd angle
 {
-    // space_x is the emptry clear white space between views
-    // gap_x is the centre - centre distance between views
+    if (proj == 3)
+        rotate_coeff = 1;
+    else if (proj == 1)
+        rotate_coeff = -1;
 
-    float space_x = (page_dims[2] - scale * layout_width) / num_gaps_x;
-    float space_y = (page_dims[3] - scale * layout_height) / num_gaps_y;
-
-    gap_x = space_x + scale * (width + depth) * 0.5;
-    gap_y = space_y + scale * (height + depth) * 0.5;
-
-    if (min_r_x % 2 == 0)
-        offset_x = page_dims[0] + space_x + 0.5 * scale * width;
-    else
-        offset_x = page_dims[0] + space_x + 0.5 * scale * depth;
-
-    if (max_r_y % 2 == 0)
-        offset_y = page_dims[1] + space_y + 0.5 * scale * height;
-    else
-        offset_y = page_dims[1] + space_y + 0.5 * scale * depth;
-}
-
-
-void OrthoViews::calc_scale()                               // compute scale required to meet minimum space requirements
-{
-    float scale_x, scale_y, working_scale;
-
-    scale_x = (page_dims[2] - num_gaps_x * min_space) / layout_width;
-    scale_y = (page_dims[3] - num_gaps_y * min_space) / layout_height;
-
-    working_scale = min(scale_x, scale_y);
-
-    //which gives the largest scale for which the min_space requirements can be met, but we want a 'sensible' scale, rather than 0.28457239...
-    //eg if working_scale = 0.115, then we want to use 0.1, similarly 7.65 -> 5, and 76.5 -> 50
-
-    float exponent = floor(log10(working_scale));                       //if working_scale = a * 10^b, what is b?
-    working_scale *= pow(10, -exponent);                                //now find what 'a' is.
-
-    float valid_scales[2][8] = {{1, 1.25, 2, 2.5, 3.75, 5, 7.5, 10},    //equate to 1:10, 1:8, 1:5, 1:4, 3:8, 1:2, 3:4, 1:1
-                                {1, 1.5, 2, 3, 4, 5, 8, 10}};           //equate to 1:1, 3:2, 2:1, 3:1, 4:1, 5:1, 8:1, 10:1
-
-    int i = 7;
-    while (valid_scales[(exponent>=0)][i] > working_scale)              //choose closest value smaller than 'a' from list.
-        i -= 1;                                                         //choosing top list if exponent -ve, bottom list for +ve exponent
-
-    scale = valid_scales[(exponent>=0)][i] * pow(10, exponent);         //now have the appropriate scale, reapply the *10^b
+    set_all_orientations();
+    process_views();
 }
 
 
@@ -632,24 +644,6 @@ void OrthoViews::del_all()
         delete views[i];
         views.pop_back();
     }
-}
-
-
-void OrthoViews::process_views()                            // update scale and positions of views
-{
-    if (autodims)
-    {
-        calc_layout_size();
-
-        if (title)
-            choose_page();
-
-        calc_scale();
-        calc_offsets();
-    }
-
-    set_views();
-    parent_doc->recompute();
 }
 
 
@@ -734,6 +728,8 @@ void OrthoViews::set_Axo(int rel_x, int rel_y, gp_Dir up, gp_Dir right, bool awa
     dir = cs.XDirection();
     cs.Rotate(gp_Ax1(gp_Pnt(0,0,0), dir), rotations[1]);
 
+    views[num]->up = up;
+    views[num]->right = right;
     views[num]->set_projection(cs);
     views[num]->setPos();
 
@@ -801,7 +797,8 @@ bool OrthoViews::get_Axo(int rel_x, int rel_y, int & axo, gp_Dir & up, gp_Dir & 
     if (num != -1 && !views[num]->ortho)
     {
         axo = views[num]->axo;
-        views[num]->get_projection(up, right);
+        up = views[num]->up;
+        right = views[num]->right;
         away = views[num]->away;
         tri = views[num]->tri;
         axo_scale = views[num]->getScale();

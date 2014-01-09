@@ -49,7 +49,6 @@ public:
 
     void    set_data(int r_x, int r_y);
     void    set_projection(gp_Ax2 cs);
-    void    get_projection(gp_Dir & up, gp_Dir & right);
     void    setPos(float = 0, float = 0);
     void    setScale(float newscale);
     float   getScale();
@@ -66,6 +65,7 @@ public:     // these aren't used by orthoView, but just informational, hence pub
     int     rel_x, rel_y;   // relative position of this view
     bool    away, tri;      // binary parameters for axonometric view
     int     axo;            // 0 / 1 / 2 = iso / di / tri metric
+    gp_Dir  up, right;      // directions prior to rotations (ie, what was used to orientate the projection)
 
 private:
     App::Document *             parent_doc;
