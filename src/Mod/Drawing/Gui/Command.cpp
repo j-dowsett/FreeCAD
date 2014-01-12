@@ -65,7 +65,7 @@ CmdDrawingOpen::CmdDrawingOpen()
 void CmdDrawingOpen::activated(int iMsg)
 {
     // Reading an image
-    QString filename = Gui::FileDialog::getOpenFileName(Gui::getMainWindow(), QObject::tr("Choose an SVG file to open"), QString::null, 
+    QString filename = Gui::FileDialog::getOpenFileName(Gui::getMainWindow(), QObject::tr("Choose an SVG file to open"), QString::null,
                                            QObject::tr("Scalable Vector Graphics (*.svg *.svgz)"));
     if (!filename.isEmpty())
     {
@@ -126,7 +126,7 @@ Gui::Action * CmdDrawingNewPage::createAction(void)
     path += "Mod/Drawing/Templates/";
     QDir dir(QString::fromUtf8(path.c_str()), QString::fromAscii("*.svg"));
     for (unsigned int i=0; i<dir.count(); i++ ) {
-        QRegExp rx(QString::fromAscii("(A|B|C|D|E)(\\d)_(Landscape|Portrait).svg"));
+        QRegExp rx(QString::fromAscii("(A|B|C|D|E)(\\d)*_(Landscape|Portrait).*.svg"));
         if (rx.indexIn(dir[i]) > -1) {
             QString paper = rx.cap(1);
             int id = rx.cap(2).toInt();
@@ -152,6 +152,11 @@ Gui::Action * CmdDrawingNewPage::createAction(void)
         }
     }
 
+    // JD
+    QAction * a = pcAction->addAction(QString());
+    a->setSeparator(true);
+    a = pcAction->addAction(QString::fromUtf8("All templates..."));
+
     _pcAction = pcAction;
     languageChange();
     if (defaultAction) {
@@ -175,26 +180,33 @@ void CmdDrawingNewPage::languageChange()
     Gui::ActionGroup* pcAction = qobject_cast<Gui::ActionGroup*>(_pcAction);
     QList<QAction*> a = pcAction->actions();
     for (QList<QAction*>::iterator it = a.begin(); it != a.end(); ++it) {
-        QString paper = (*it)->property("TemplatePaper").toString();
-        int id = (*it)->property("TemplateId").toInt();
-        QString orientation = (*it)->property("TemplateOrientation").toString();
-        if (orientation.compare(QLatin1String("landscape"), Qt::CaseInsensitive) == 0)
-            orientation = QCoreApplication::translate("Drawing_NewPage", "Landscape", 0, QCoreApplication::CodecForTr);
-        else if (orientation.compare(QLatin1String("portrait"), Qt::CaseInsensitive) == 0)
-            orientation = QCoreApplication::translate("Drawing_NewPage", "Portrait", 0, QCoreApplication::CodecForTr);
+        if (it == a.end()-1)
+        {
+            (*it)->setText(QCoreApplication::translate("Drawing_NewPage", "All templates...", 0, QCoreApplication::CodecForTr));
+            (*it)->setToolTip(QCoreApplication::translate("Drawing_NewPage", "Select from all available templates", 0, QCoreApplication::CodecForTr));
+        }
+        else {
+            QString paper = (*it)->property("TemplatePaper").toString();
+            int id = (*it)->property("TemplateId").toInt();
+            QString orientation = (*it)->property("TemplateOrientation").toString();
+            if (orientation.compare(QLatin1String("landscape"), Qt::CaseInsensitive) == 0)
+                orientation = QCoreApplication::translate("Drawing_NewPage", "Landscape", 0, QCoreApplication::CodecForTr);
+            else if (orientation.compare(QLatin1String("portrait"), Qt::CaseInsensitive) == 0)
+                orientation = QCoreApplication::translate("Drawing_NewPage", "Portrait", 0, QCoreApplication::CodecForTr);
 
-        (*it)->setText(QCoreApplication::translate(
-            "Drawing_NewPage", "%1%2 %3", 0,
-            QCoreApplication::CodecForTr)
-            .arg(paper)
-            .arg(id)
-            .arg(orientation));
-        (*it)->setToolTip(QCoreApplication::translate(
-            "Drawing_NewPage", "Insert new %1%2 %3 drawing", 0,
-            QCoreApplication::CodecForTr)
-            .arg(paper)
-            .arg(id)
-            .arg(orientation));
+            (*it)->setText(QCoreApplication::translate(
+                "Drawing_NewPage", "%1%2 %3", 0,
+                QCoreApplication::CodecForTr)
+                .arg(paper)
+                .arg(id)
+                .arg(orientation));
+            (*it)->setToolTip(QCoreApplication::translate(
+                "Drawing_NewPage", "Insert new %1%2 %3 drawing", 0,
+                QCoreApplication::CodecForTr)
+                .arg(paper)
+                .arg(id)
+                .arg(orientation));
+        }
     }
 }
 
@@ -327,7 +339,7 @@ void CmdDrawingOrthoViews::activated(int iMsg)
             QObject::tr("Create a page to insert views into."));
         return;
     }
- 
+
     Gui::Control().showDialog(new TaskDlgOrthoViews());
 }
 
@@ -484,7 +496,7 @@ void CmdDrawingSymbol::activated(int iMsg)
         return;
     }
     // Reading an image
-    QString filename = Gui::FileDialog::getOpenFileName(Gui::getMainWindow(), QObject::tr("Choose an SVG file to open"), QString::null, 
+    QString filename = Gui::FileDialog::getOpenFileName(Gui::getMainWindow(), QObject::tr("Choose an SVG file to open"), QString::null,
                                            QObject::tr("Scalable Vector Graphics (*.svg *.svgz)"));
     if (!filename.isEmpty())
     {
