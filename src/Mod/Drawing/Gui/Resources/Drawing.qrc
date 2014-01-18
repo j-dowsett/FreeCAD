@@ -1,8 +1,9 @@
 <RCC>
-    <qresource> 
+    <qresource>
         <file>icons/Page.svg</file>
         <file>icons/Pages.svg</file>
         <file>icons/View.svg</file>
+        <file>icons/preferences-drawing.svg</file>
         <file>icons/actions/document-new.png</file>
         <file>icons/actions/document-new.svg</file>
         <file>icons/actions/drawing-landscape-A0.svg</file>
@@ -43,4 +44,4 @@
         <file>translations/Drawing_hu.qm</file>
         <file>translations/Drawing_pt-PT.qm</file>
     </qresource>
-</RCC> 
+</RCC>

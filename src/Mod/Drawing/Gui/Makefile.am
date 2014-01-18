@@ -3,17 +3,22 @@ SUBDIRS=Resources
 lib_LTLIBRARIES=libDrawingGui.la DrawingGui.la
 
 BUILT_SOURCES=\
-		moc_DrawingView.cpp \
-		moc_TaskOrthoViews.cpp \
+		ui_DlgSettingsGeneral.h \
 		ui_TaskOrthoViews.h \
+		moc_DlgSettingsGeneral.cpp \
+		moc_DrawingView.cpp \
 		moc_TaskDialog.cpp
+		moc_TaskOrthoViews.cpp \
 
 libDrawingGui_la_UI=\
+		DlgSettingsGeneral.ui \
         TaskOrthoViews.ui
 
 libDrawingGui_la_SOURCES=\
 		AppDrawingGuiPy.cpp \
 		Command.cpp \
+		DlgSettingsGeneral.cpp \
+		DlgSettingsGeneral.h \
 		DrawingView.cpp \
 		DrawingView.h \
 		PreCompiled.cpp \
@@ -93,5 +98,6 @@ CLEANFILES = $(BUILT_SOURCES)
 
 EXTRA_DIST = \
 		$(libDrawingGui_la_UI) \
+		Resources/icons/preferences-drawing.svg \
 		CMakeLists.txt
 

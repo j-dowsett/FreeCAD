@@ -25,6 +25,7 @@ set(DrawingGui_LIBS
 
 
 set(DrawingGui_MOC_HDRS
+    DlgSettingsGeneral.h
     DrawingView.h
     TaskOrthoViews.h
     TaskDialog.h
@@ -39,6 +40,7 @@ SOURCE_GROUP("Moc" FILES ${DrawingGui_MOC_SRCS})
 qt4_add_resources(DrawingGui_SRCS Resources/Drawing.qrc)
 
 set(DrawingGui_UIC_SRCS
+    DlgSettingsGeneral.ui
     TaskOrthoViews.ui
 )
 
@@ -49,6 +51,9 @@ SET(DrawingGui_SRCS
     AppDrawingGui.cpp
     AppDrawingGuiPy.cpp
     Command.cpp
+    DlgSettingsGeneral.cpp
+    DlgSettingsGeneral.h
+    DlgSettingsGeneral.ui
     Resources/Drawing.qrc
     PreCompiled.cpp
     PreCompiled.h
@@ -90,7 +95,7 @@ add_library(DrawingGui SHARED ${DrawingGui_SRCS} ${DrawingGuiView_SRCS} ${Drawin
 target_link_libraries(DrawingGui ${DrawingGui_LIBS})
 
 
-fc_target_copy_resource(DrawingGui 
+fc_target_copy_resource(DrawingGui
     ${CMAKE_SOURCE_DIR}/src/Mod/Drawing
     ${CMAKE_BINARY_DIR}/Mod/Drawing
     InitGui.py)

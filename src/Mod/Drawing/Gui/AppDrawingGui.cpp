@@ -28,11 +28,15 @@
 
 #include <Base/Console.h>
 #include <Gui/Application.h>
+#include <Gui/WidgetFactory.h>
+//#include <Gui/BitmapFactory.h>
 #include <Gui/Language/Translator.h>
 #include "Workbench.h"
 #include "ViewProviderPage.h"
 #include "ViewProviderView.h"
+#include "DlgSettingsGeneral.h"
 //#include "resources/qrc_Drawing.cpp"
+
 
 // use a different name to CreateCommand()
 void CreateDrawingCommands(void);
@@ -66,6 +70,12 @@ void DrawingGuiExport initDrawingGui()
 
     DrawingGui::ViewProviderDrawingPage::init();
     DrawingGui::ViewProviderDrawingView::init();
+
+    // register preferences pages
+    (void)new Gui::PrefPageProducer<DrawingGui::DlgSettingsGeneral>     ( QT_TRANSLATE_NOOP("QObject","Drawing") );
+    //Gui::ViewProviderBuilder::add(
+      //  Part::PropertyPartShape::getClassTypeId(),
+      //  PartGui::ViewProviderPart::getClassTypeId());
 
     // add resources and reloads the translators
     loadDrawingResource();
