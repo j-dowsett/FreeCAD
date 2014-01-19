@@ -51,9 +51,17 @@ DlgSettingsGeneral::~DlgSettingsGeneral()
 
 void DlgSettingsGeneral::saveSettings()
 {
+ //   Base::Reference<ParameterGrp> hGrp = App::GetApplication().GetUserParameter()
+ //       .GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("Mod/Drawing");
+
+    //hGrp->SetInt("Minimum space", ui->orthSpace->value());
+    ui->orthoSpace->onSave();
+    ui->defaultProj->onSave();
+    //hGrp->SetInt("Default projection", ui->defaultProj->currentIndex());
+
+    //ui->comboTest->onSave();
+
 /*    int unit = ui->comboBoxUnits->currentIndex();
-    Base::Reference<ParameterGrp> hGrp = App::GetApplication().GetUserParameter()
-        .GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("Mod/Part");
     hGrp->SetInt("Unit", unit);
     switch (unit) {
         case 1:
@@ -78,9 +86,14 @@ void DlgSettingsGeneral::saveSettings()
 
 void DlgSettingsGeneral::loadSettings()
 {
-/*    Base::Reference<ParameterGrp> hGrp = App::GetApplication().GetUserParameter()
-        .GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("Mod/Part");
-    int unit = hGrp->GetInt("Unit", 0);
+ //   Base::Reference<ParameterGrp> hGrp = App::GetApplication().GetUserParameter()
+ //       .GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("Mod/Drawing");
+
+    ui->orthoSpace->onRestore(); //setValue(hGrp->GetInt("Minimum space", 15));
+    ui->defaultProj->onRestore(); //setCurrentIndex(hGrp->GetInt("Default projection", 0));
+
+    //ui->comboTest->onRestore();
+/*    int unit = hGrp->GetInt("Unit", 0);
     ui->comboBoxUnits->setCurrentIndex(unit);
     ui->checkBooleanCheck->onRestore();
     ui->checkBooleanRefine->onRestore();
