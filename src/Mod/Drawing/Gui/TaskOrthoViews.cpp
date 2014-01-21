@@ -276,15 +276,20 @@ OrthoViews::OrthoViews(const char * pagename, const char * partname)
     page = parent_doc->getObject(pagename);
     load_page();
 
-    min_space = 15;             // should be preferenced
+    //min_space = 15;             // should be preferenced
 
     min_r_x = max_r_x = 0;
     min_r_y = max_r_y = 0;
 
-    rotate_coeff = 1;
+    //rotate_coeff = 1;
     smooth = false;
     hidden = false;
     autodims = true;
+
+    Base::Reference<ParameterGrp> hGrp = App::GetApplication().GetUserParameter()
+        .GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("Mod/Drawing");
+    min_space = hGrp->GetInt("Minimum space", 15);
+    rotate_coeff = 2 * hGrp->GetInt("Default projection", 1) - 1;
 }
 
 
@@ -922,6 +927,11 @@ TaskOrthoViews::TaskOrthoViews(QWidget *parent)
     connect(ui->axoScale, SIGNAL(returnPressed()), this, SLOT(text_return()));
 
     ui->tabWidget->setTabEnabled(1,false);
+
+    Base::Reference<ParameterGrp> hGrp = App::GetApplication().GetUserParameter()
+        .GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("Mod/Drawing");
+    ui->projection->setCurrentIndex(1 - hGrp->GetInt("Default projection", 1));
+
 
     gp_Dir facing = gp_Dir(1, 0, 0);
     gp_Dir right = gp_Dir(0, 1, 0);
