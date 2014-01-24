@@ -6,12 +6,14 @@ BUILT_SOURCES=\
 		ui_DlgSettingsGeneral.h \
 		ui_TaskOrthoViews.h \
 		moc_DlgSettingsGeneral.cpp \
+		moc_DlgTemplateSelection.cpp \
 		moc_DrawingView.cpp \
 		moc_TaskDialog.cpp
 		moc_TaskOrthoViews.cpp \
 
 libDrawingGui_la_UI=\
 		DlgSettingsGeneral.ui \
+		DlgTemplateSelection.ui \
         TaskOrthoViews.ui
 
 libDrawingGui_la_SOURCES=\
@@ -19,6 +21,8 @@ libDrawingGui_la_SOURCES=\
 		Command.cpp \
 		DlgSettingsGeneral.cpp \
 		DlgSettingsGeneral.h \
+		DlgTemplateSelection.cpp \
+		DlgTemplateSelection.h \
 		DrawingView.cpp \
 		DrawingView.h \
 		PreCompiled.cpp \

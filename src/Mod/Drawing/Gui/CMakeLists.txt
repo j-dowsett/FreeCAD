@@ -26,6 +26,7 @@ set(DrawingGui_LIBS
 
 set(DrawingGui_MOC_HDRS
     DlgSettingsGeneral.h
+    DlgTemplateSelection.h
     DrawingView.h
     TaskOrthoViews.h
     TaskDialog.h
@@ -41,6 +42,7 @@ qt4_add_resources(DrawingGui_SRCS Resources/Drawing.qrc)
 
 set(DrawingGui_UIC_SRCS
     DlgSettingsGeneral.ui
+    DlgTemplateSelection.ui
     TaskOrthoViews.ui
 )
 
@@ -54,6 +56,9 @@ SET(DrawingGui_SRCS
     DlgSettingsGeneral.cpp
     DlgSettingsGeneral.h
     DlgSettingsGeneral.ui
+    DlgTemplateSelection.cpp
+    DlgTemplateSelection.h
+    DlgTemplateSelection.ui
     Resources/Drawing.qrc
     PreCompiled.cpp
     PreCompiled.h

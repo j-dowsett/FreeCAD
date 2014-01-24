@@ -38,6 +38,7 @@
 #include "DrawingView.h"
 #include "TaskDialog.h"
 #include "TaskOrthoViews.h"
+#include "DlgTemplateSelection.h"
 
 using namespace DrawingGui;
 using namespace std;
