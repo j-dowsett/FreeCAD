@@ -27,41 +27,28 @@
 #include <App/PropertyStandard.h>
 
 #include "DlgTemplateSelection.h"
-//#include "Document.h"
-//#include <QUrl>
-//#include <QDesktopServices>
+#include "ui_DlgTemplateSelection.h"
 
 using namespace DrawingGui;
 
-/* TRANSLATOR Gui::Dialog::DlgProjectInformationImp */
+/* TRANSLATOR DrawingGui::DlgTemplateSelection */
 
-/**
- *  Constructs a Gui::Dialog::DlgProjectInformationImp as a child of 'parent', with the
- *  name 'name' and widget flags set to 'f'.
- *
- *  The dialog will by default be modeless, unless you set 'modal' to
- *  TRUE to construct a modal dialog.
- */
-
-DlgTemplateSelection::DlgTemplateSelection( App::Document* doc, QWidget* parent, Qt::WFlags fl )
-  : QDialog( parent, fl )//, ui(new Ui_DlgTemplateSelection) //_doc(doc)
+DlgTemplateSelection::DlgTemplateSelection(QWidget* parent, Qt::WFlags fl )
+  : QDialog( parent, fl ), ui(new Ui_DlgTemplateSelection)
 {
     ui->setupUi(this);
 }
 
-/**
- *  Destroys the object and frees any allocated resources
- */
 DlgTemplateSelection::~DlgTemplateSelection()
 {
   // no need to delete child widgets, Qt does it all for us
 }
 
-/**
- * Applies the changes to the project information of the given document.
- */
+
 void DlgTemplateSelection::accept()
 {
-
     QDialog::accept();
 }
+
+
+#include "moc_DlgTemplateSelection.cpp"

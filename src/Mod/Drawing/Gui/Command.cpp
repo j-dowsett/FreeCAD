@@ -98,21 +98,30 @@ void CmdDrawingNewPage::activated(int iMsg)
     Gui::ActionGroup* pcAction = qobject_cast<Gui::ActionGroup*>(_pcAction);
     QAction* a = pcAction->actions()[iMsg];
 
-    std::string FeatName = getUniqueObjectName("Page");
+    if (a->property("Template").isValid())
+    {
+        std::string FeatName = getUniqueObjectName("Page");
 
-    QFileInfo tfi(a->property("Template").toString());
-    if (tfi.isReadable()) {
-        openCommand("Drawing create page");
-        doCommand(Doc,"App.activeDocument().addObject('Drawing::FeaturePage','%s')",FeatName.c_str());
-        doCommand(Doc,"App.activeDocument().%s.Template = '%s'",FeatName.c_str(), (const char*)tfi.filePath().toUtf8());
-        commitCommand();
+        QFileInfo tfi(a->property("Template").toString());
+        if (tfi.isReadable()) {
+            openCommand("Drawing create page");
+            doCommand(Doc,"App.activeDocument().addObject('Drawing::FeaturePage','%s')",FeatName.c_str());
+            doCommand(Doc,"App.activeDocument().%s.Template = '%s'",FeatName.c_str(), (const char*)tfi.filePath().toUtf8());
+            commitCommand();
+        }
+        else {
+            QMessageBox::critical(Gui::getMainWindow(),
+                QLatin1String("No template"),
+                QLatin1String("No template available for this page size"));
+        }
     }
-    else {
-        QMessageBox::critical(Gui::getMainWindow(),
-            QLatin1String("No template"),
-            QLatin1String("No template available for this page size"));
+    else
+    {
+        DrawingGui::DlgTemplateSelection dlg(Gui::getMainWindow());
+        dlg.exec();
     }
 }
+
 
 Gui::Action * CmdDrawingNewPage::createAction(void)
 {

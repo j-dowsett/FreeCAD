@@ -25,7 +25,7 @@
 #define GUI_DIALOG_DLGTEMPLATESELECTION_H
 
 #include "ui_DlgTemplateSelection.h"
-#include <QDialog>
+//#include <QDialog>
 
 //namespace App {
 //class Document;
@@ -37,16 +37,18 @@ class Ui_DlgTemplateSelection;
 namespace DrawingGui {
 
 
-class DlgTemplateSelection : public QDialog//, public Ui_DlgTemplateSelection
+class DlgTemplateSelection : public QDialog, public Ui_DlgTemplateSelection
 {
+    Q_OBJECT
+
 public:
-    DlgTemplateSelection( App::Document* doc, QWidget* parent = 0, Qt::WFlags fl = 0 );
+    DlgTemplateSelection(QWidget* parent = 0, Qt::WFlags fl = 0 );
     ~DlgTemplateSelection();
 
 protected:
     Ui_DlgTemplateSelection * ui;
     void accept();
-    App::Document* _doc;
+    //App::Document* _doc;
 };
 
 } // namespace DrawingGui
