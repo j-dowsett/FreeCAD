@@ -29,6 +29,9 @@
 #include "DlgTemplateSelection.h"
 #include "ui_DlgTemplateSelection.h"
 
+#include <Gui/Application.h>
+#include <QDir>
+
 using namespace DrawingGui;
 
 /* TRANSLATOR DrawingGui::DlgTemplateSelection */
@@ -37,7 +40,10 @@ DlgTemplateSelection::DlgTemplateSelection(QWidget* parent, Qt::WFlags fl )
   : QDialog( parent, fl ), ui(new Ui_DlgTemplateSelection)
 {
     ui->setupUi(this);
+
+    filepath = new char[30];
 }
+
 
 DlgTemplateSelection::~DlgTemplateSelection()
 {
@@ -45,10 +51,42 @@ DlgTemplateSelection::~DlgTemplateSelection()
 }
 
 
-void DlgTemplateSelection::accept()
+
+void DlgTemplateSelection::addSeries(QString path)
 {
-    QDialog::accept();
+    QDir dir(path);
+    dir.setFilter(QDir::Dirs);
+    QString this_series;
+
+    for (int i=0; i<dir.count(); i++ )
+    {
+        this_series = dir[i];
+        if(series.find(this_series) == series.end())
+        {
+            series[this_series] = new QTreeWidgetItem(QStringList(this_series));
+            ui->templates->addTopLevelItem(series[this_series]);
+        }
+        addTemplates(dir.absolutePath(), series[this_series]);
+    }
 }
 
+
+void DlgTemplateSelection::fillList()
+{
+    std::string path = App::Application::getResourceDir();
+    path += "Mod/Drawing/Templates/";
+    addSeries(QString::fromUtf8(path.c_str()));
+
+    Base::Reference<ParameterGrp> hGrp = App::GetApplication().GetUserParameter()
+        .GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("Mod/Drawing");
+    path = hGrp->GetASCII("Templates folder", "");
+    if (path != "")
+        addSeries(QString::fromUtf8(path.c_str()));
+}
+
+const char * DlgTemplateSelection::getPath()
+{
+    return filepath;
+}
 
 #include "moc_DlgTemplateSelection.cpp"

@@ -97,12 +97,27 @@ void CmdDrawingNewPage::activated(int iMsg)
 {
     Gui::ActionGroup* pcAction = qobject_cast<Gui::ActionGroup*>(_pcAction);
     QAction* a = pcAction->actions()[iMsg];
+    QString filepath;// = QString::fromUtf8("");
 
     if (a->property("Template").isValid())
     {
+        filepath = a->property("Template").toString();
+    }
+    else
+    {
+        // 'All templates' menu option...open selection dialog
+        DrawingGui::DlgTemplateSelection dlg(Gui::getMainWindow());
+        if (dlg.exec())
+        {
+            filepath = QString::fromUtf8(dlg.getPath());
+        }
+    }
+
+    if (!filepath.isEmpty())
+    {
         std::string FeatName = getUniqueObjectName("Page");
 
-        QFileInfo tfi(a->property("Template").toString());
+        QFileInfo tfi(filepath);
         if (tfi.isReadable()) {
             openCommand("Drawing create page");
             doCommand(Doc,"App.activeDocument().addObject('Drawing::FeaturePage','%s')",FeatName.c_str());
@@ -114,11 +129,6 @@ void CmdDrawingNewPage::activated(int iMsg)
                 QLatin1String("No template"),
                 QLatin1String("No template available for this page size"));
         }
-    }
-    else
-    {
-        DrawingGui::DlgTemplateSelection dlg(Gui::getMainWindow());
-        dlg.exec();
     }
 }
 

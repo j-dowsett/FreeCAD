@@ -25,6 +25,7 @@
 #define GUI_DIALOG_DLGTEMPLATESELECTION_H
 
 #include "ui_DlgTemplateSelection.h"
+#include <map>
 //#include <QDialog>
 
 //namespace App {
@@ -45,10 +46,19 @@ public:
     DlgTemplateSelection(QWidget* parent = 0, Qt::WFlags fl = 0 );
     ~DlgTemplateSelection();
 
+    const char * getPath();
+
 protected:
     Ui_DlgTemplateSelection * ui;
-    void accept();
-    //App::Document* _doc;
+
+private:
+    void addTemplates(QString path, QTreeWidgetItem * parent);
+    void addSeries(QString path);
+    void fillList();
+
+    char * filepath;
+    std::map <QString, QTreeWidgetItem *> series;
+
 };
 
 } // namespace DrawingGui

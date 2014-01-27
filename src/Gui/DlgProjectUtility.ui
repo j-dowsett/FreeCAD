@@ -30,8 +30,8 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="Gui::FileChooser" name="extractSource">
-          <property name="filter">
+         <widget class="Gui::FileChooser" name="extractSource" native="true">
+          <property name="filter" stdset="0">
            <string>Project file (*.fcstd)</string>
           </property>
          </widget>
@@ -44,11 +44,7 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="Gui::FileChooser" name="extractDest">
-          <property name="mode">
-           <enum>Gui::FileChooser::Directory</enum>
-          </property>
-         </widget>
+         <widget class="Gui::FileChooser" name="extractDest" native="true"/>
         </item>
        </layout>
       </widget>
@@ -80,8 +76,8 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="Gui::FileChooser" name="createSource">
-          <property name="filter">
+         <widget class="Gui::FileChooser" name="createSource" native="true">
+          <property name="filter" stdset="0">
            <string>Document.xml</string>
           </property>
          </widget>
@@ -94,11 +90,7 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="Gui::FileChooser" name="createDest">
-          <property name="mode">
-           <enum>Gui::FileChooser::Directory</enum>
-          </property>
-         </widget>
+         <widget class="Gui::FileChooser" name="createDest" native="true"/>
         </item>
        </layout>
       </widget>
