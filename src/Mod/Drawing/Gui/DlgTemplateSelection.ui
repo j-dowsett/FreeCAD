@@ -16,6 +16,9 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QTreeWidget" name="templates">
+     <property name="sortingEnabled">
+      <bool>true</bool>
+     </property>
      <column>
       <property name="text">
        <string>Series</string>
@@ -108,6 +111,22 @@
     <hint type="sourcelabel">
      <x>248</x>
      <y>324</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>195</x>
+     <y>173</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>templates</sender>
+   <signal>itemDoubleClicked(QTreeWidgetItem*,int)</signal>
+   <receiver>DlgTemplateSelection</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>195</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
      <x>195</x>

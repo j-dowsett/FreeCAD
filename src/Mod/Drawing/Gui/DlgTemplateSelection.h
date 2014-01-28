@@ -46,7 +46,7 @@ public:
     DlgTemplateSelection(QWidget* parent = 0, Qt::WFlags fl = 0 );
     ~DlgTemplateSelection();
 
-    const char * getPath();
+    QString getPath();
 
 protected:
     Ui_DlgTemplateSelection * ui;
@@ -56,7 +56,6 @@ private:
     void addSeries(QString path);
     void fillList();
 
-    char * filepath;
     std::map <QString, QTreeWidgetItem *> series;
 
 };

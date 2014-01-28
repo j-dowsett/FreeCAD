@@ -51,37 +51,13 @@ DlgSettingsGeneral::~DlgSettingsGeneral()
 
 void DlgSettingsGeneral::saveSettings()
 {
- //   Base::Reference<ParameterGrp> hGrp = App::GetApplication().GetUserParameter()
- //       .GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("Mod/Drawing");
+    Base::Reference<ParameterGrp> hGrp = App::GetApplication().GetUserParameter()
+        .GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("Mod/Drawing");
 
-    //hGrp->SetInt("Minimum space", ui->orthSpace->value());
+    hGrp->SetASCII("Templates folder", ui->templatePath->text().toStdString().c_str());
+
     ui->orthoSpace->onSave();
     ui->defaultProj->onSave();
-    //hGrp->SetInt("Default projection", ui->defaultProj->currentIndex());
-
-    //ui->comboTest->onSave();
-
-/*    int unit = ui->comboBoxUnits->currentIndex();
-    hGrp->SetInt("Unit", unit);
-    switch (unit) {
-        case 1:
-            Interface_Static::SetCVal("write.iges.unit","M");
-            Interface_Static::SetCVal("write.step.unit","M");
-            break;
-        case 2:
-            Interface_Static::SetCVal("write.iges.unit","IN");
-            Interface_Static::SetCVal("write.step.unit","IN");
-            break;
-        default:
-            Interface_Static::SetCVal("write.iges.unit","MM");
-            Interface_Static::SetCVal("write.step.unit","MM");
-            break;
-    }
-    ui->checkBooleanCheck->onSave();
-    ui->checkBooleanRefine->onSave();
-    ui->checkSketchBaseRefine->onSave();
-    ui->checkObjectNaming->onSave();
-*/
 }
 
 void DlgSettingsGeneral::loadSettings()

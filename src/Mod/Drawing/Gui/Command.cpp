@@ -109,7 +109,7 @@ void CmdDrawingNewPage::activated(int iMsg)
         DrawingGui::DlgTemplateSelection dlg(Gui::getMainWindow());
         if (dlg.exec())
         {
-            filepath = QString::fromUtf8(dlg.getPath());
+            filepath = dlg.getPath();
         }
     }
 
@@ -131,7 +131,6 @@ void CmdDrawingNewPage::activated(int iMsg)
         }
     }
 }
-
 
 Gui::Action * CmdDrawingNewPage::createAction(void)
 {

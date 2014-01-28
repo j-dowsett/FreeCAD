@@ -40,33 +40,62 @@ DlgTemplateSelection::DlgTemplateSelection(QWidget* parent, Qt::WFlags fl )
   : QDialog( parent, fl ), ui(new Ui_DlgTemplateSelection)
 {
     ui->setupUi(this);
-
-    filepath = new char[30];
+    fillList();
 }
 
 
 DlgTemplateSelection::~DlgTemplateSelection()
 {
-  // no need to delete child widgets, Qt does it all for us
 }
 
+
+void DlgTemplateSelection::addTemplates(QString path, QTreeWidgetItem * parent)
+{
+    std::string temp = path.toStdString();
+
+    QDir dir(path, QString::fromAscii("*.svg"));
+
+    for (unsigned int i=0; i<dir.count(); i++ )
+    {
+        QRegExp rx(QString::fromAscii("(A|B|C|D|E)(\\d)?_(Landscape|Portrait)(_)?(.*).svg"));
+        if (rx.indexIn(dir[i]) > -1)
+        {
+            QString paper = rx.cap(1);
+            QString id = rx.cap(2);
+            QString orientation = rx.cap(3);
+            QString additional = rx.cap(5);
+            additional.replace(QString::fromUtf8("_"), QString::fromUtf8(" "));
+
+            QStringList template_details;
+            template_details << QString() << paper + id << orientation << additional;
+            QTreeWidgetItem * template_item = new QTreeWidgetItem(template_details);
+            template_item->setToolTip(1, dir.absoluteFilePath(dir[i]));
+            parent->addChild(template_item);
+        }
+    }
+}
 
 
 void DlgTemplateSelection::addSeries(QString path)
 {
+    std::string temp_string;
+
     QDir dir(path);
-    dir.setFilter(QDir::Dirs);
+    dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
     QString this_series;
 
     for (int i=0; i<dir.count(); i++ )
     {
         this_series = dir[i];
+
+        temp_string = this_series.toStdString();
+
         if(series.find(this_series) == series.end())
         {
             series[this_series] = new QTreeWidgetItem(QStringList(this_series));
             ui->templates->addTopLevelItem(series[this_series]);
         }
-        addTemplates(dir.absolutePath(), series[this_series]);
+        addTemplates(dir.absoluteFilePath(this_series), series[this_series]);
     }
 }
 
@@ -80,13 +109,19 @@ void DlgTemplateSelection::fillList()
     Base::Reference<ParameterGrp> hGrp = App::GetApplication().GetUserParameter()
         .GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("Mod/Drawing");
     path = hGrp->GetASCII("Templates folder", "");
+
     if (path != "")
         addSeries(QString::fromUtf8(path.c_str()));
+
+    ui->templates->sortItems(2, Qt::AscendingOrder);
+    ui->templates->sortItems(1, Qt::AscendingOrder);
+    ui->templates->sortItems(0, Qt::AscendingOrder);
 }
 
-const char * DlgTemplateSelection::getPath()
+
+QString DlgTemplateSelection::getPath()
 {
-    return filepath;
+    return ui->templates->currentItem()->toolTip(1);
 }
 
 #include "moc_DlgTemplateSelection.cpp"
