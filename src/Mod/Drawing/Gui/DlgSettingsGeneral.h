@@ -37,12 +37,17 @@ public:
     DlgSettingsGeneral(QWidget* parent = 0);
     ~DlgSettingsGeneral();
 
+protected Q_SLOTS:
+    void updateTemplatePath(QString junk);
+
 protected:
+    void selectSeries();
     void saveSettings();
     void loadSettings();
     void changeEvent(QEvent *e);
 
 private:
+    void findSeries();
     Ui_DlgSettingsGeneral* ui;
 };
 

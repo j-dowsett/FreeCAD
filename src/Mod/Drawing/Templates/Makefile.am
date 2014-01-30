@@ -6,4 +6,4 @@ data_DATA = \
 		A4_Simple.svg
 
 EXTRA_DIST = \
-		$(data_DATA) 
+		$(data_DATA)

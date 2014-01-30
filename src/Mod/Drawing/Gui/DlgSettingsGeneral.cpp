@@ -31,6 +31,7 @@
 #include "DlgSettingsGeneral.h"
 #include "ui_DlgSettingsGeneral.h"
 
+
 using namespace DrawingGui;
 
 DlgSettingsGeneral::DlgSettingsGeneral(QWidget* parent)
@@ -38,49 +39,99 @@ DlgSettingsGeneral::DlgSettingsGeneral(QWidget* parent)
 {
     ui = new Ui_DlgSettingsGeneral();
     ui->setupUi(this);
+
+    ui->templatePath->setMode(Gui::FileChooser::Directory);
+    findSeries();       // populates drop down box for default template series
+
+    connect(ui->templatePath, SIGNAL(fileNameChanged(QString)), this, SLOT(updateTemplatePath(QString)));       // need to catch this to update default series combobox
 }
 
-/**
- *  Destroys the object and frees any allocated resources
- */
+
 DlgSettingsGeneral::~DlgSettingsGeneral()
 {
-    // no need to delete child widgets, Qt does it all for us
     delete ui;
 }
 
-void DlgSettingsGeneral::saveSettings()
+
+void DlgSettingsGeneral::updateTemplatePath(QString junk)
+{
+    ui->templatePath->onSave();
+    ui->defaultSeries->clear();
+    findSeries();
+    selectSeries();
+}
+
+
+void DlgSettingsGeneral::findSeries()
+{
+    QStringList series;
+
+    std::string path = App::Application::getResourceDir();
+    path += "Mod/Drawing/Templates/";
+    QDir dir(QString::fromUtf8(path.c_str()));
+    dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    for (int i=0; i<dir.count(); i++ )
+        series << dir[i];
+
+
+    Base::Reference<ParameterGrp> hGrp = App::GetApplication().GetUserParameter()
+        .GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("Mod/Drawing");
+    path = hGrp->GetASCII("Templates folder", "");
+
+    if (path != "")
+    {
+        dir.setPath(QString::fromUtf8(path.c_str()));
+        dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+
+        for (int i=0; i<dir.count(); i++ )
+            series << dir[i];
+    }
+
+    series.removeDuplicates();
+    series.sort();
+    ui->defaultSeries->insertItems(0, series);
+}
+
+
+void DlgSettingsGeneral::selectSeries()
 {
     Base::Reference<ParameterGrp> hGrp = App::GetApplication().GetUserParameter()
         .GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("Mod/Drawing");
+    std::string series = hGrp->GetASCII("Default series", "");
+    int i;
 
-    hGrp->SetASCII("Templates folder", ui->templatePath->text().toStdString().c_str());
+    for (i = ui->defaultSeries->count() - 1; i > 0; i--)
+    {
+        if (ui->defaultSeries->itemText(i).toStdString() == series)
+            break;
+    }
 
+    ui->defaultSeries->setCurrentIndex(i);          // if preference doesn't exist (or series can't be found), will select top item in list
+}
+
+
+void DlgSettingsGeneral::saveSettings()
+{
     ui->orthoSpace->onSave();
     ui->defaultProj->onSave();
+    ui->templatePath->onSave();
+
+    Base::Reference<ParameterGrp> hGrp = App::GetApplication().GetUserParameter()
+        .GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("Mod/Drawing");
+    hGrp->SetASCII("Default series", ui->defaultSeries->currentText().toStdString().c_str());
 }
+
 
 void DlgSettingsGeneral::loadSettings()
 {
- //   Base::Reference<ParameterGrp> hGrp = App::GetApplication().GetUserParameter()
- //       .GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("Mod/Drawing");
-
-    ui->orthoSpace->onRestore(); //setValue(hGrp->GetInt("Minimum space", 15));
-    ui->defaultProj->onRestore(); //setCurrentIndex(hGrp->GetInt("Default projection", 0));
-
-    //ui->comboTest->onRestore();
-/*    int unit = hGrp->GetInt("Unit", 0);
-    ui->comboBoxUnits->setCurrentIndex(unit);
-    ui->checkBooleanCheck->onRestore();
-    ui->checkBooleanRefine->onRestore();
-    ui->checkSketchBaseRefine->onRestore();
-    ui->checkObjectNaming->onRestore();
-*/
+    ui->orthoSpace->onRestore();
+    ui->defaultProj->onRestore();
+    ui->templatePath->onRestore();
+    selectSeries();
 }
 
-/**
- * Sets the strings of the subwidgets using the current language.
- */
+
 void DlgSettingsGeneral::changeEvent(QEvent *e)
 {
     if (e->type() == QEvent::LanguageChange) {

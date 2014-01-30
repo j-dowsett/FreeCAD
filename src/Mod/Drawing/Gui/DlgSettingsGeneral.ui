@@ -33,84 +33,42 @@
      </property>
     </spacer>
    </item>
-   <item row="1" column="0">
-    <widget class="QGroupBox" name="Templates">
+   <item row="2" column="0">
+    <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Drawing Templates</string>
+      <string>GroupBox</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <widget class="Gui::PrefComboBox" name="comboTest">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>0</y>
+        <width>140</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="prefEntry" stdset="0">
+       <cstring>comboTest</cstring>
+      </property>
+      <property name="prefPath" stdset="0">
+       <cstring>Mod/Drawing</cstring>
+      </property>
       <item>
-       <layout class="QFormLayout" name="formLayout_2">
-        <property name="fieldGrowthPolicy">
-         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-        </property>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="minimumSize">
-           <size>
-            <width>205</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Size of recent template list</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="Gui::PrefSpinBox" name="recentTemplates">
-            <property name="value">
-             <number>4</number>
-            </property>
-            <property name="prefEntry" stdset="0">
-             <cstring>Recent templates</cstring>
-            </property>
-            <property name="prefPath" stdset="0">
-             <cstring>Mod/Drawing</cstring>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Path for user templates</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="QLineEdit" name="templatePath"/>
-          </item>
-          <item>
-           <widget class="QToolButton" name="btnPath">
-            <property name="text">
-             <string>...</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
+       <property name="text">
+        <string>1</string>
+       </property>
       </item>
-     </layout>
+      <item>
+       <property name="text">
+        <string>2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>3</string>
+       </property>
+      </item>
+     </widget>
     </widget>
    </item>
    <item row="0" column="0">
@@ -219,48 +177,136 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QGroupBox" name="groupBox">
+   <item row="1" column="0">
+    <widget class="QGroupBox" name="Templates">
      <property name="title">
-      <string>GroupBox</string>
+      <string>Drawing Templates</string>
      </property>
-     <widget class="Gui::PrefComboBox" name="comboTest">
-      <property name="geometry">
-       <rect>
-        <x>100</x>
-        <y>0</y>
-        <width>140</width>
-        <height>27</height>
-       </rect>
-      </property>
-      <property name="prefEntry" stdset="0">
-       <cstring>comboTest</cstring>
-      </property>
-      <property name="prefPath" stdset="0">
-       <cstring>Mod/Drawing</cstring>
-      </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <property name="text">
-        <string>1</string>
-       </property>
+       <layout class="QFormLayout" name="formLayout_2">
+        <property name="fieldGrowthPolicy">
+         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+        </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="minimumSize">
+           <size>
+            <width>205</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Size of recent template list</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="Gui::PrefSpinBox" name="recentTemplates">
+            <property name="value">
+             <number>4</number>
+            </property>
+            <property name="prefEntry" stdset="0">
+             <cstring>Recent templates</cstring>
+            </property>
+            <property name="prefPath" stdset="0">
+             <cstring>Mod/Drawing</cstring>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Path for user templates</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="Gui::PrefFileChooser" name="templatePath" native="true">
+          <property name="prefEntry" stdset="0">
+           <cstring>Templates folder</cstring>
+          </property>
+          <property name="prefPath" stdset="0">
+           <cstring>Mod/Drawing</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Default template series</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="Gui::PrefComboBox" name="defaultSeries">
+            <property name="minimumSize">
+             <size>
+              <width>90</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="prefEntry" stdset="0">
+             <cstring>Default series</cstring>
+            </property>
+            <property name="prefPath" stdset="0">
+             <cstring>Mod/Drawing</cstring>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </item>
-      <item>
-       <property name="text">
-        <string>2</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>3</string>
-       </property>
-      </item>
-     </widget>
+     </layout>
     </widget>
    </item>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
+  <customwidget>
+   <class>Gui::FileChooser</class>
+   <extends>QWidget</extends>
+   <header>Gui/FileDialog.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Gui::PrefFileChooser</class>
+   <extends>Gui::FileChooser</extends>
+   <header>Gui/PrefWidgets.h</header>
+  </customwidget>
   <customwidget>
    <class>Gui::PrefSpinBox</class>
    <extends>QSpinBox</extends>
