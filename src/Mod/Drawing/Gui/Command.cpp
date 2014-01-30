@@ -111,6 +111,21 @@ void CmdDrawingNewPage::activated(int iMsg)
         {
             filepath = dlg.getPath();
         }
+
+        //from Gui/Action.cpp line 321
+        /*
+        QList<QWidget*> widgets = a->associatedWidgets();
+        for (QList<QWidget*>::iterator it = widgets.begin(); it != widgets.end(); ++it) {
+            QMenu* menu = qobject_cast<QMenu*>(*it);
+            if (menu) {
+                QToolButton* button = qobject_cast<QToolButton*>(menu->parent());
+                if (button) {
+                    button->setIcon(a->icon());
+                    this->setProperty("defaultAction", QVariant(index));
+                }
+            }
+        }
+        */
     }
 
     if (!filepath.isEmpty())
@@ -164,7 +179,7 @@ Gui::Action * CmdDrawingNewPage::createAction(void)
             a->setProperty("TemplateId", id);
             a->setProperty("Template", dir.absoluteFilePath(dir[i]));
 
-            if (id == 3) {
+            if (id == 5) {
                 defaultAction = a;
                 defaultId = pcAction->actions().size() - 1;
             }
