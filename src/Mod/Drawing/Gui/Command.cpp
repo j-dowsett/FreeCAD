@@ -138,6 +138,10 @@ void CmdDrawingNewPage::activated(int iMsg)
             doCommand(Doc,"App.activeDocument().addObject('Drawing::FeaturePage','%s')",FeatName.c_str());
             doCommand(Doc,"App.activeDocument().%s.Template = '%s'",FeatName.c_str(), (const char*)tfi.filePath().toUtf8());
             commitCommand();
+
+            Base::Reference<ParameterGrp> hGrp = App::GetApplication().GetUserParameter().GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("Mod/Drawing");
+            hGrp->SetASCII("Last template", filepath.toStdString().c_str());
+
         }
         else {
             QMessageBox::critical(Gui::getMainWindow(),
@@ -149,6 +153,10 @@ void CmdDrawingNewPage::activated(int iMsg)
 
 Gui::Action * CmdDrawingNewPage::createAction(void)
 {
+    Base::Reference<ParameterGrp> hGrp = App::GetApplication().GetUserParameter()
+        .GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("Mod/Drawing");
+    QString lastTemplate = QString::fromAscii(hGrp->GetASCII("Last template", "").c_str());
+
     Gui::ActionGroup* pcAction = new Gui::ActionGroup(this, Gui::getMainWindow());
     pcAction->setDropDownMenu(true);
     applyCommandData(pcAction);
@@ -160,16 +168,22 @@ Gui::Action * CmdDrawingNewPage::createAction(void)
     path += "Mod/Drawing/Templates/";
     QDir dir(QString::fromUtf8(path.c_str()), QString::fromAscii("*.svg"));
     for (unsigned int i=0; i<dir.count(); i++ ) {
-        QRegExp rx(QString::fromAscii("((?:(?:A|B|C|D|E)\\d?)|Legal|Ledger|Letter)_(Landscape|Portrait).*.svg"));
-        if (rx.indexIn(dir[i]) > -1) {
-            QString paper = rx.cap(1);
-            //int id = rx.cap(2).toInt();
-            QString orientation = rx.cap(2);
-            QFile file(QString::fromAscii(":/icons/actions/drawing-landscape-A0.svg"));
+        QRegExp rx(QString::fromAscii("(((?:A|B|C|D|E)\\d?)|(Legal|Ledger|Letter))_(Landscape|Portrait).*.svg"));
+        if (rx.indexIn(dir[i]) > -1)
+        {
+            QString paper = rx.cap(1);                                      // gives A4 / B / Legal etc
+            QString twoLetters;
+            if (!rx.cap(2).isEmpty())
+                twoLetters = rx.cap(2);                                     // gives A4 / B etc
+            else
+                twoLetters = QString::fromAscii("L") + rx.cap(3).at(2);     // gives Lg / Ld etc
+            QString orientation = rx.cap(4);
+
+            QFile file(QString::fromAscii(":/icons/actions/drawing-") + orientation.toLower() + QString::fromAscii("-A0.svg"));
             QAction* a = pcAction->addAction(QString());
-            if (file.open(QFile::ReadOnly)) {
-                //QString s = QString::fromAscii("style=\"font-size:22px\">%1%2</tspan></text>").arg(paper).arg(id);
-                QString s = QString::fromAscii("style=\"font-size:22px\">%1</tspan></text>").arg(paper);
+            if (file.open(QFile::ReadOnly))
+            {
+                QString s = QString::fromAscii("style=\"font-size:22px\">%1</tspan></text>").arg(twoLetters);
                 QByteArray data = file.readAll();
                 data.replace("style=\"font-size:22px\">A0</tspan></text>", s.toAscii());
                 a->setIcon(Gui::BitmapFactory().pixmapFromSvg(data, QSize(24,24)));
@@ -177,13 +191,13 @@ Gui::Action * CmdDrawingNewPage::createAction(void)
 
             a->setProperty("TemplatePaper", paper);
             a->setProperty("TemplateOrientation", orientation);
-            //a->setProperty("TemplateId", id);
             a->setProperty("Template", dir.absoluteFilePath(dir[i]));
 
-            //if (id == 5) {
-            //    defaultAction = a;
-            //    defaultId = pcAction->actions().size() - 1;
-            //}
+            if (dir.absoluteFilePath(dir[i]) == lastTemplate)
+            {
+                defaultAction = a;
+                defaultId = pcAction->actions().size() - 1;
+            }
         }
     }
 
@@ -222,7 +236,6 @@ void CmdDrawingNewPage::languageChange()
         }
         else {
             QString paper = (*it)->property("TemplatePaper").toString();
-            //int id = (*it)->property("TemplateId").toInt();
             QString orientation = (*it)->property("TemplateOrientation").toString();
             if (orientation.compare(QLatin1String("landscape"), Qt::CaseInsensitive) == 0)
                 orientation = QCoreApplication::translate("Drawing_NewPage", "Landscape", 0, QCoreApplication::CodecForTr);
@@ -230,18 +243,14 @@ void CmdDrawingNewPage::languageChange()
                 orientation = QCoreApplication::translate("Drawing_NewPage", "Portrait", 0, QCoreApplication::CodecForTr);
 
             (*it)->setText(QCoreApplication::translate(
-                //"Drawing_NewPage", "%1%2 %3", 0,
-                "Drawing_NewPage", "%1 %3", 0,
+                "Drawing_NewPage", "%1 %2", 0,
                 QCoreApplication::CodecForTr)
                 .arg(paper)
-                //.arg(id)
                 .arg(orientation));
             (*it)->setToolTip(QCoreApplication::translate(
-                //"Drawing_NewPage", "Insert new %1%2 %3 drawing", 0,
-                "Drawing_NewPage", "Insert new %1 %3 drawing", 0,
+                "Drawing_NewPage", "Insert new %1 %2 drawing", 0,
                 QCoreApplication::CodecForTr)
                 .arg(paper)
-                //.arg(id)
                 .arg(orientation));
         }
     }
