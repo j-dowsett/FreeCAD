@@ -198,12 +198,12 @@ void CmdDrawingNewPage::languageChange()
             orientation = QCoreApplication::translate("Drawing_NewPage", "Portrait", 0, QCoreApplication::CodecForTr);
 
         (*it)->setText(QCoreApplication::translate(
-            "Drawing_NewPage", "%1 %3", 0,
+            "Drawing_NewPage", "%1 %2", 0,
             QCoreApplication::CodecForTr)
             .arg(paper)
             .arg(orientation));
         (*it)->setToolTip(QCoreApplication::translate(
-            "Drawing_NewPage", "Insert new %1 %3 drawing", 0,
+            "Drawing_NewPage", "Insert new %1 %2 drawing", 0,
             QCoreApplication::CodecForTr)
             .arg(paper)
             .arg(orientation));

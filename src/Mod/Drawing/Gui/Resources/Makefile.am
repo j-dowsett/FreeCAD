@@ -1,10 +1,10 @@
 noinst_LTLIBRARIES=libResources.la
 
 BUILT_SOURCES=\
-		qrc_Drawing.cpp 
+		qrc_Drawing.cpp
 
 nodist_libResources_la_SOURCES=\
-		qrc_Drawing.cpp 
+		qrc_Drawing.cpp
 
 EXTRA_DIST = \
 		icons/actions/document-new.png \
@@ -17,6 +17,7 @@ EXTRA_DIST = \
 		icons/actions/drawing-landscape-A3.svg \
 		icons/actions/drawing-landscape-A4.svg \
 		icons/actions/drawing-landscape-new.svg \
+		icons/actions/drawing-portrait-A0.svg \
 		icons/actions/drawing-portrait-A4.svg \
 		icons/actions/drawing-orthoviews.svg \
 		icons/actions/drawing-openbrowser.svg \
