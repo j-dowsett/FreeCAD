@@ -40,6 +40,8 @@
 #include "TaskOrthoViews.h"
 #include "DlgTemplateSelection.h"
 
+#include "ActionTemplateMRU.h"
+
 using namespace DrawingGui;
 using namespace std;
 
@@ -75,6 +77,51 @@ void CmdDrawingOpen::activated(int iMsg)
         Command::doCommand(Command::Gui, "DrawingGui.open(\"%s\")", (const char*)filename.toUtf8());
     }
 }
+
+
+//===========================================================================
+// Recent Templates
+//===========================================================================
+
+
+DEF_STD_CMD_ACL(CmdDrawingRecentTemplates)
+
+CmdDrawingRecentTemplates::CmdDrawingRecentTemplates()
+  :Command("Drawing_RecentTemplates")
+{
+    //sAppModule      = "Drawing";
+    sGroup          = QT_TR_NOOP("Drawing");
+    sMenuText       = QT_TR_NOOP("Recent templates");
+    sToolTipText    = QT_TR_NOOP("Recent templates list");
+    sWhatsThis      = "Drawing_RecentTemplates";
+    sStatusTip      = sToolTipText;
+    eType           = 0;
+}
+
+/**
+ * Opens the recent file at position \a iMsg in the menu.
+ * If the file does not exist or cannot be loaded this item is removed
+ * from the list.
+ */
+void CmdDrawingRecentTemplates::activated(int iMsg)
+{
+    TemplatesRecentFilesAction* act = qobject_cast<TemplatesRecentFilesAction*>(_pcAction);
+    if (act) act->activateFile( iMsg );
+}
+
+/**
+ * Creates the QAction object containing the recent files.
+ */
+Gui::Action * CmdDrawingRecentTemplates::createAction(void)
+{
+    TemplatesRecentFilesAction* pcAction = new TemplatesRecentFilesAction(this, Gui::getMainWindow());
+    pcAction->setObjectName(QLatin1String("recentTemplates"));
+    pcAction->setDropDownMenu(true);
+    applyCommandData(pcAction);
+    return pcAction;
+}
+
+
 
 //===========================================================================
 // Drawing_NewPage

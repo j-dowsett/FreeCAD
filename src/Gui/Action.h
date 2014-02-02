@@ -28,12 +28,12 @@
 #include <QComboBox>
 #include <QKeySequence>
 
-namespace Gui 
+namespace Gui
 {
 class Command;
 
 /**
- * The Action class is the link between Qt's QAction class and FreeCAD's 
+ * The Action class is the link between Qt's QAction class and FreeCAD's
  * command classes (@ref Command). So, it is possible to have all actions
  * (from toolbars, menus, ...) implemented in classes instead of many slot
  * methods in the class @ref MainWindow.
@@ -71,7 +71,7 @@ public:
 
 public Q_SLOTS:
     virtual void onActivated ();
-    virtual void onToggled   (bool); 
+    virtual void onToggled   (bool);
 
 protected:
     QAction* _action;
@@ -81,7 +81,7 @@ protected:
 // --------------------------------------------------------------------
 
 /**
- * The ActionGroup class is the link between Qt's QActionGroup class and 
+ * The ActionGroup class is the link between Qt's QActionGroup class and
  * FreeCAD's command classes (@ref Command). Compared to Action with an
  * ActionGroup it is possible to implement a single command with a group
  * of toggable actions where e.g. one is set exclusive.
@@ -154,7 +154,7 @@ class GuiExport WorkbenchGroup : public ActionGroup
     Q_OBJECT
 
 public:
-    /** 
+    /**
      * Creates an action for the command \a pcCmd to load the workbench \a name
      * when it gets activated.
      */
@@ -174,7 +174,7 @@ protected:
 // --------------------------------------------------------------------
 
 /**
- * The RecentFilesAction class holds a menu listed with the recent files. 
+ * The RecentFilesAction class holds a menu listed with the recent files.
  * @author Werner Mayer
  */
 class GuiExport RecentFilesAction : public ActionGroup
@@ -189,21 +189,23 @@ public:
     void activateFile(int);
     void resizeList(int);
 
+protected:
+    QStringList files() const;
+
 private:
     void setFiles(const QStringList&);
-    QStringList files() const;
     void restore();
     void save();
 
-private:
+protected:
     int visibleItems; /**< Number of visible items */
-    int maximumItems; /**< Number of maximum items */ 
+    int maximumItems; /**< Number of maximum items */
 };
 
 // --------------------------------------------------------------------
 
 /**
- * The UndoAction class reimplements a special behaviour to make a menu 
+ * The UndoAction class reimplements a special behaviour to make a menu
  * appearing when the button with the arrow is clicked.
  * @author Werner Mayer
  */
@@ -225,7 +227,7 @@ private:
 // --------------------------------------------------------------------
 
 /**
- * The RedoAction class reimplements a special behaviour to make a menu 
+ * The RedoAction class reimplements a special behaviour to make a menu
  * appearing when the button with the arrow is clicked.
  * @author Werner Mayer
  */

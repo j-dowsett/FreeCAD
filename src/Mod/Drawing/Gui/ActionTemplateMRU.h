@@ -21,23 +21,36 @@
  ***************************************************************************/
 
 
-#ifndef GUI_ACTION_H
-#define GUI_ACTION_H
+#ifndef ACTIONTEMPLATEMRU_H
+#define ACTIONTEMPLATEMRU_H
 
+#include "PreCompiled.h"
 #include <QAction>
+#include "Gui/Action.h"
 
+class Command;
+//class Gui::RecentFilesAction;
 
-class GuiExport TemplatesRecentFilesAction : public RecentFilesAction
+namespace DrawingGui
+{
+//class Gui::RecentFilesAction;
+
+class TemplatesRecentFilesAction : public Gui::RecentFilesAction
 {
     Q_OBJECT
 
 public:
-    TemplatesRecentFilesAction(Command* pcCmd, QObject * parent = 0);
+    TemplatesRecentFilesAction(Gui::Command* pcCmd, QObject * parent = 0);
     virtual ~TemplatesRecentFilesAction();
 
+    void activateFile(int);
 
 
 private:
     void setFiles(const QStringList& fileList);
+    void restore();
+    void save();
+};
 
 }
+#endif

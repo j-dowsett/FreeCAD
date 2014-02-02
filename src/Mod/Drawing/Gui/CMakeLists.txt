@@ -25,6 +25,7 @@ set(DrawingGui_LIBS
 
 
 set(DrawingGui_MOC_HDRS
+    ActionTemplateMRU.h
     DlgSettingsGeneral.h
     DlgTemplateSelection.h
     DrawingView.h
@@ -50,6 +51,8 @@ qt4_wrap_ui(DrawingGui_UIC_HDRS ${DrawingGui_UIC_SRCS})
 
 SET(DrawingGui_SRCS
     ${DrawingGui_SRCS}
+    ActionTemplateMRU.h
+    ActionTemplateMRU.cpp
     AppDrawingGui.cpp
     AppDrawingGuiPy.cpp
     Command.cpp
